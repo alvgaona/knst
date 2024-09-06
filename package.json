@@ -1,0 +1,26 @@
+{
+  "name": "atomize",
+  "version": "0.0.1",
+  "description": "",
+  "author": {
+    "name": "Alvaro Gaona",
+    "email": "alvgaona@gmail.com"
+  },
+  "repository": {
+    "url": "https://github.com/alvgaona/atomize"
+  },
+  "private": true,
+  "engines": {
+    "bun": "^1.0.0"
+  },
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "format:check": "prettier --check .",
+    "format": "prettier --write ."
+  },
+  "devDependencies": {
+    "prettier-plugin-organize-imports": "^4.0.0"
+  }
+}
