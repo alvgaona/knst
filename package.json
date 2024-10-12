@@ -1,7 +1,8 @@
 {
   "name": "atomize",
   "version": "0.0.1",
-  "description": "",
+  "type": "module",
+  "description": "A personal URL shortener app",
   "author": {
     "name": "Alvaro Gaona",
     "email": "alvgaona@gmail.com"
@@ -13,12 +14,24 @@
   "engines": {
     "bun": "^1.0.0"
   },
-  "workspaces": [
-    "packages/*"
-  ],
   "scripts": {
     "format:check": "prettier --check .",
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "dev": "astro dev",
+    "start": "astro dev",
+    "build": "astro check && astro build",
+    "preview": "astro preview",
+    "astro": "astro"
+  },
+  "dependencies": {
+    "@astrojs/check": "^0.9.4",
+    "@astrojs/netlify": "^5.5.3",
+    "@astrojs/solid-js": "^4.4.2",
+    "@neondatabase/serverless": "^0.10.1",
+    "astro": "^4.16.1",
+    "solid-devtools": "^0.30.1",
+    "solid-js": "^1.9.2",
+    "typescript": "^5.6.3"
   },
   "devDependencies": {
     "prettier-plugin-organize-imports": "^4.0.0"
