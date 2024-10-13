@@ -1,5 +1,6 @@
 import { actions } from 'astro:actions';
-import { createEffect, createSignal, For, Show } from 'solid-js';
+import { createSignal, For, Show } from 'solid-js';
+import { createQuery, createMutation, useQueryClient } from '@tanstack/solid-query';
 
 interface ShortUrl {
   id: number;
@@ -10,64 +11,59 @@ interface ShortUrl {
 const FormComponent = ({ siteHost }: { siteHost: string }) => {
   const [shortenedUrl, setShortenedUrl] = createSignal<string>('');
   const [error, setError] = createSignal<string>('');
-  const [isLoading, setIsLoading] = createSignal<boolean>(false);
-  const [shortUrls, setShortUrls] = createSignal<ShortUrl[]>([]);
 
-  createEffect(async () => {
-    try {
+  const queryClient = useQueryClient();
+
+  const shortsQuery = createQuery(() => ({
+    queryKey: ['shorts'],
+    queryFn: async () => {
       const { data, error } = await actions.getShorts();
-      if (error) {
-        setError(error.message);
-      }
-      if (data) {
-        setShortUrls(data);
-      }
-    } catch (err) {
-      setError('Failed to load existing short URLs');
-    }
-  });
+      if (error) throw new Error(error.message);
+      return data as ShortUrl[];
+    },
+  }));
+
+  const shortenMutation = createMutation(() => ({
+    mutationFn: async (formData: FormData) => {
+      const { data, error } = await actions.shortenUrl(formData);
+      if (error) throw new Error(error.message);
+      return data;
+    },
+    onSuccess: (data: any) => {
+      setShortenedUrl(data.short_code);
+      queryClient.setQueryData(['shorts'], (old: ShortUrl[] | undefined) =>
+        [{ id: data.id, short_code: data.short_code, url: data.url }, ...(old || [])]
+      );
+    },
+    onError: (error: Error) => {
+      setError(error.message);
+    },
+  }));
+
+  const deleteMutation = createMutation(() => ({
+    mutationFn: async (id: number) => {
+      const { error } = await actions.deleteShort(id);
+      if (error) throw new Error(error.message);
+    },
+    onSuccess: (_data: void, id: number) => {
+      queryClient.setQueryData(['shorts'], (old: ShortUrl[] | undefined) =>
+        old ? old.filter((url) => url.id !== id) : []
+      );
+    },
+    onError: (error: Error) => {
+      setError(error.message);
+    },
+  }));
 
   const handleSubmit = async (event: Event) => {
     event.preventDefault();
-    setIsLoading(true);
-    setError('');
-
-    try {
-      const form = event.target as HTMLFormElement;
-      const formData = new FormData(form);
-
-      const { data, error } = await actions.shortenUrl(formData);
-
-      if (error) {
-        setError(error.message);
-      }
-
-      if (data) {
-        setShortenedUrl(data.short_code);
-        console.log(data);
-        setShortUrls([
-          { id: data.id, short_code: data.short_code, url: data.url },
-          ...shortUrls(),
-        ]);
-      }
-    } catch (err) {
-      setError('An unexpected error occurred. Please try again');
-    } finally {
-      setIsLoading(false);
-    }
+    const form = event.target as HTMLFormElement;
+    const formData = new FormData(form);
+    shortenMutation.mutate(formData);
   };
 
   const handleDelete = async (id: number) => {
-    try {
-      const { error } = await actions.deleteShort(id);
-      if (error) {
-        setError(error.message);
-      } else {
-        setShortUrls(shortUrls().filter((url) => url.id !== id));
-      }
-    } catch (err) {
-      setError('Failed to delete the short URL');
-    }
+    deleteMutation.mutate(id);
   };
 
   return (
@@ -79,8 +75,8 @@ const FormComponent = ({ siteHost }: { siteHost: string }) => {
           placeholder="Enter a URL to shorten"
           required
         />
-        <button type="submit" disabled={isLoading()}>
-          {isLoading() ? 'Shortening...' : 'Shorten URL'}
+        <button type="submit" disabled={shortenMutation.isPending}>
+          {shortenMutation.isPending ? 'Shortening...' : 'Shorten URL'}
         </button>
       </form>
 
@@ -103,11 +99,11 @@ const FormComponent = ({ siteHost }: { siteHost: string }) => {
         </div>
       </Show>
 
-      <Show when={shortUrls().length > 0}>
+      <Show when={shortsQuery.data && shortsQuery.data.length > 0}>
         <div class="existing-shorts">
           <h3 class="bg-red-500 font-bold">Existing Short URLs:</h3>
           <ul>
-            <For each={shortUrls()}>
+            <For each={shortsQuery.data}>
               {(shortUrl) => (
                 <li>
                   <span>{shortUrl.url}</span>
