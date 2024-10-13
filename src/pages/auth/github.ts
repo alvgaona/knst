@@ -1,60 +1,69 @@
-import { OAuthApp } from '@octokit/oauth-app';
 import type { APIRoute } from 'astro';
+import * as jose from 'jose';
 
-const clientId = import.meta.env.GITHUB_CLIENT_ID;
-const clientSecret = import.meta.env.GITHUB_CLIENT_SECRET;
+const CLIENT_ID = import.meta.env.GITHUB_CLIENT_ID;
+const CLIENT_SECRET = import.meta.env.GITHUB_CLIENT_SECRET;
+const REDIRECT_URI = import.meta.env.GITHUB_REDIRECT_URI;
+const STATE_SECRET = import.meta.env.SIGN_STATE_SECRET;
+const ALLOWED_USER = import.meta.env.ALLOWED_USER;
 
-if (!clientId || !clientSecret) {
-  throw new Error('GITHUB_CLIENT_ID and GITHUB_CLIENT_SECRET must be set');
-}
-
-const oauthApp = new OAuthApp({
-  clientId,
-  clientSecret,
-});
-
-export const get: APIRoute = async ({ request }) => {
-  const url = new URL(request.url);
-  const code = url.searchParams.get('code');
-
-  if (!code) {
-    // If no code, redirect to GitHub for authorization
-    const a = oauthApp.getWebFlowAuthorizationUrl({
-      redirectUrl: `${url.origin}/api/auth/github`,
-      scopes: ['user'],
-    });
-
-    return new Response('Redirecting...', {
-      status: 302,
-      headers: {
-        Location: url.toString(),
-      },
-    });
-  }
+async function verifySignedState(signedState: string) {
+  const secret = new TextEncoder().encode(STATE_SECRET);
 
   try {
-    // Exchange code for access token
-    const { authentication } = await oauthApp.createToken({
-      code,
-    });
-
-    // Get user data
-    const { data: userData } = await oauthApp.octokit.request('GET /user', {
-      headers: {
-        authorization: `token ${authentication.token}`,
-      },
-    });
-
-    // In a real app, you'd typically set a session cookie here
-    // For this example, we'll just return the user data
-    return new Response(JSON.stringify(userData), {
-      status: 200,
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    });
+    const { payload } = await jose.jwtVerify(signedState, secret);
+    return payload;
   } catch (error) {
-    console.error('Error in GitHub OAuth flow:', error);
-    return new Response('Authentication failed', { status: 400 });
+    return null;
   }
+}
+
+export const GET: APIRoute = async ({ url, redirect }) => {
+  const params = url.searchParams;
+
+  const state = params.get("state");
+  const code = params.get("code");
+
+  if (!state) {
+    return new Response('Missing state parameter', { status: 400 });
+  }
+
+  const verifiedState = await verifySignedState(state);
+
+  if (!verifiedState) {
+    return new Response('Invalid or expired state. Possible CSRF attack', { status: 400 });
+  }
+
+  const tokenResponse = await fetch('https://github.com/login/oauth/access_token', {
+    method: 'POST',
+    headers: {
+      'Accept': 'application/json',
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      client_id: CLIENT_ID,
+      client_secret: CLIENT_SECRET,
+      code,
+      redirect_uri: REDIRECT_URI,
+    })
+  });
+
+  const tokenData = await tokenResponse.json();
+
+  const userResponse = await fetch('https://api.github.com/user', {
+    headers: {
+      'Authorization': `token ${tokenData.access_token}`,
+      'Accept': 'application/json'
+    }
+  });
+
+  const userData = await userResponse.json();
+
+  if (userData.login !== ALLOWED_USER) {
+    return new Response('Access denied.', { status: 403 });
+  }
+
+  const response = redirect('/');
+  response.headers.set('Set-Cookie', `token=${tokenData.access_token}; HttpOnly; Secure; SameSite=Strict; Path=/`);
+  return response;
 };

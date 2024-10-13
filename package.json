@@ -1,52 +1,55 @@
 {
-  "name": "knst",
-  "version": "0.0.1",
-  "type": "module",
-  "description": "A personal URL shortener app",
-  "author": {
-    "name": "Alvaro Gaona",
-    "email": "alvgaona@gmail.com"
-  },
-  "repository": {
-    "url": "https://github.com/alvgaona/knst"
-  },
-  "private": true,
-  "engines": {
-    "bun": "^1.0.0"
-  },
-  "scripts": {
-    "format:check": "prettier --check .",
-    "format": "prettier --write .",
-    "dev": "astro dev",
-    "start": "astro dev",
-    "build": "astro check && astro build",
-    "preview": "astro preview",
-    "astro": "astro"
-  },
-  "dependencies": {
-    "@astrojs/check": "^0.9.4",
-    "@astrojs/netlify": "^5.5.3",
-    "@astrojs/solid-js": "^4.4.2",
-    "@astrojs/tailwind": "^5.1.2",
-    "@modular-forms/solid": "^0.24.1",
-    "@neondatabase/serverless": "^0.10.1",
-    "@octokit/oauth-app": "^7.1.3",
-    "@tanstack/solid-form": "^0.33.0",
-    "@tanstack/solid-query": "^5.59.13",
-    "@tanstack/solid-table": "^8.20.5",
-    "astro": "^4.16.1",
-    "drizzle-kit": "^0.25.0",
-    "drizzle-orm": "^0.34.1",
-    "solid-devtools": "^0.30.1",
-    "solid-js": "^1.9.2",
-    "tailwindcss": "^3.4.13",
-    "tailwindcss-animate": "^1.0.7",
-    "typescript": "^5.6.3"
-  },
-  "devDependencies": {
-    "@tanstack/solid-query-devtools": "^5.59.13",
-    "prettier-plugin-astro": "^0.14.1",
-    "prettier-plugin-organize-imports": "^4.0.0",
-    "prettier-plugin-tailwindcss": "^0.6.8"
-  }
+    "name": "knst",
+    "version": "0.0.1",
+    "type": "module",
+    "description": "A personal URL shortener app",
+    "author": {
+        "name": "Alvaro Gaona",
+        "email": "alvgaona@gmail.com"
+    },
+    "repository": {
+        "url": "https://github.com/alvgaona/knst"
+    },
+    "private": true,
+    "engines": {
+        "bun": "^1.0.0"
+    },
+    "scripts": {
+        "format:check": "prettier --check .",
+        "format": "prettier --write .",
+        "dev": "astro dev",
+        "start": "astro dev",
+        "build": "astro check && astro build",
+        "preview": "astro preview",
+        "astro": "astro"
+    },
+    "dependencies": {
+        "@astrojs/check": "^0.9.4",
+        "@astrojs/netlify": "^5.5.3",
+        "@astrojs/solid-js": "^4.4.2",
+        "@astrojs/tailwind": "^5.1.2",
+        "@auth/core": "^0.32.0",
+        "@modular-forms/solid": "^0.24.1",
+        "@neondatabase/serverless": "^0.10.1",
+        "@octokit/auth-app": "^7.1.1",
+        "@tanstack/solid-form": "^0.33.0",
+        "@tanstack/solid-query": "^5.59.13",
+        "@tanstack/solid-table": "^8.20.5",
+        "astro": "^4.16.1",
+        "drizzle-kit": "^0.25.0",
+        "drizzle-orm": "^0.34.1",
+        "jose": "^5.9.4",
+        "minimatch": "^10.0.1",
+        "solid-devtools": "^0.30.1",
+        "solid-js": "^1.9.2",
+        "tailwindcss": "^3.4.13",
+        "tailwindcss-animate": "^1.0.7",
+        "typescript": "^5.6.3"
+    },
+    "devDependencies": {
+        "@tanstack/solid-query-devtools": "^5.59.13",
+        "prettier-plugin-astro": "^0.14.1",
+        "prettier-plugin-organize-imports": "^4.0.0",
+        "prettier-plugin-tailwindcss": "^0.6.8"
+    }
 }
