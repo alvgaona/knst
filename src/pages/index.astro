@@ -1,15 +1,11 @@
 ---
 import Layout from '@/layouts/Layout.astro';
 import FormComponent from '@/components/form';
-
 const siteHost = Astro.site ? new URL(Astro.site).host : '';
-
-const data = Astro.locals;
 ---
 
 <Layout meta={{ title: 'shortener' }}>
   <main>
-    <h1>{data.title}</h1>
     <span>knst shortener</span>
     <FormComponent client:load siteHost={siteHost} />
   </main>

@@ -1,11 +1,11 @@
+import { OAuthApp } from '@octokit/oauth-app';
 import type { APIRoute } from 'astro';
-import { OAuthApp } from "@octokit/oauth-app";
 
 const clientId = import.meta.env.GITHUB_CLIENT_ID;
 const clientSecret = import.meta.env.GITHUB_CLIENT_SECRET;
 
 if (!clientId || !clientSecret) {
-  throw new Error("GITHUB_CLIENT_ID and GITHUB_CLIENT_SECRET must be set");
+  throw new Error('GITHUB_CLIENT_ID and GITHUB_CLIENT_SECRET must be set');
 }
 
 const oauthApp = new OAuthApp({
@@ -15,19 +15,20 @@ const oauthApp = new OAuthApp({
 
 export const get: APIRoute = async ({ request }) => {
   const url = new URL(request.url);
-  const code = url.searchParams.get("code");
+  const code = url.searchParams.get('code');
 
   if (!code) {
     // If no code, redirect to GitHub for authorization
     const a = oauthApp.getWebFlowAuthorizationUrl({
       redirectUrl: `${url.origin}/api/auth/github`,
-      scopes: ["user"],
+      scopes: ['user'],
     });
 
-
-    return new Response("Redirecting...", {
+    return new Response('Redirecting...', {
       status: 302,
-      headers: { Location: url },
+      headers: {
+        Location: url.toString(),
+      },
     });
   }
 
@@ -49,11 +50,11 @@ export const get: APIRoute = async ({ request }) => {
     return new Response(JSON.stringify(userData), {
       status: 200,
       headers: {
-        "Content-Type": "application/json",
+        'Content-Type': 'application/json',
       },
     });
   } catch (error) {
-    console.error("Error in GitHub OAuth flow:", error);
-    return new Response("Authentication failed", { status: 400 });
+    console.error('Error in GitHub OAuth flow:', error);
+    return new Response('Authentication failed', { status: 400 });
   }
 };
