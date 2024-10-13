@@ -8,7 +8,7 @@ import { defineConfig } from 'astro/config';
 export default defineConfig({
   site: 'http://localhost:4321',
   output: 'server',
-  adapter: netlify(),
+  adapter: netlify({ edgeMiddleware: true }),
   integrations: [
     solid({ devtools: true }),
     tailwind({ applyBaseStyles: false }),
