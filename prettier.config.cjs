@@ -7,5 +7,9 @@ module.exports = {
   quoteProps: 'as-needed',
   trailingComma: 'all',
   endOfLine: 'lf',
-  plugins: [require.resolve('prettier-plugin-organize-imports')],
+  plugins: [
+    require.resolve('prettier-plugin-astro'),
+    require.resolve('prettier-plugin-organize-imports'),
+    require.resolve('prettier-plugin-tailwindcss'),
+  ],
 };

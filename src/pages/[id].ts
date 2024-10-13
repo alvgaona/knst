@@ -12,11 +12,11 @@ export const GET: APIRoute = async ({ params }) => {
     const sql = neon(import.meta.env.DATABASE_URL);
 
     const result = await sql`
-                UPDATE url_shortener
-                SET access_count = access_count + 1, last_accessed = NOW()
-                WHERE short_code = ${id}
-                RETURNING original_url
-            `;
+            UPDATE url_shortener
+            SET access_count = access_count + 1, last_accessed = NOW()
+            WHERE short_code = ${id}
+            RETURNING original_url
+        `;
 
     if (result && result.length > 0) {
       const { original_url } = result[0];

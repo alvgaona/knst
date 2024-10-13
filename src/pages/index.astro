@@ -1,10 +1,13 @@
 ---
-import Layout from '../layouts/Layout.astro';
-import Card from '../components/Card.astro';
+import Layout from '@/layouts/Layout.astro';
+import FormComponent from '@/components/form';
+
+const siteHost = Astro.site ? new URL(Astro.site).host : '';
 ---
 
-<Layout meta={{ title: "shortener" }}>
-	<main>
-	   <span>knst shortener</span>
-	</main>
+<Layout meta={{ title: 'shortener' }}>
+  <main>
+    <span>knst shortener</span>
+    <FormComponent client:load siteHost={siteHost} />
+  </main>
 </Layout>
