@@ -26,7 +26,9 @@ export const get: APIRoute = async ({ request }) => {
 
     return new Response('Redirecting...', {
       status: 302,
-      headers: { Location: url },
+      headers: {
+        Location: url.toString(),
+      },
     });
   }
 
