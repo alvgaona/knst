@@ -15,7 +15,7 @@ async function createSignedState() {
   const secret = new TextEncoder().encode(STATE_SECRET);
   return await new jose.SignJWT(state)
     .setProtectedHeader({ alg: 'HS256' })
-    .setExpirationTime('5m') // State is valid for 5 minutes
+    .setExpirationTime('1m') // state is valid for 1 minute
     .sign(secret);
 }
 
