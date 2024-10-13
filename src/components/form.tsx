@@ -1,6 +1,11 @@
+import {
+  createMutation,
+  createQuery,
+  useQueryClient,
+} from '@tanstack/solid-query';
 import { actions } from 'astro:actions';
 import { createSignal, For, Show } from 'solid-js';
-import { createQuery, createMutation, useQueryClient } from '@tanstack/solid-query';
+import QueryProvider from './query-provider';
 
 interface ShortUrl {
   id: number;
@@ -8,7 +13,7 @@ interface ShortUrl {
   url?: string;
 }
 
-const FormComponent = ({ siteHost }: { siteHost: string }) => {
+const FormQueryComponent = ({ siteHost }: { siteHost: string }) => {
   const [shortenedUrl, setShortenedUrl] = createSignal<string>('');
   const [error, setError] = createSignal<string>('');
 
@@ -31,9 +36,10 @@ const FormComponent = ({ siteHost }: { siteHost: string }) => {
     },
     onSuccess: (data: any) => {
       setShortenedUrl(data.short_code);
-      queryClient.setQueryData(['shorts'], (old: ShortUrl[] | undefined) =>
-        [{ id: data.id, short_code: data.short_code, url: data.url }, ...(old || [])]
-      );
+      queryClient.setQueryData(['shorts'], (old: ShortUrl[] | undefined) => [
+        { id: data.id, short_code: data.short_code, url: data.url },
+        ...(old || []),
+      ]);
     },
     onError: (error: Error) => {
       setError(error.message);
@@ -47,7 +53,7 @@ const FormComponent = ({ siteHost }: { siteHost: string }) => {
     },
     onSuccess: (_data: void, id: number) => {
       queryClient.setQueryData(['shorts'], (old: ShortUrl[] | undefined) =>
-        old ? old.filter((url) => url.id !== id) : []
+        old ? old.filter((url) => url.id !== id) : [],
       );
     },
     onError: (error: Error) => {
@@ -126,5 +132,11 @@ const FormComponent = ({ siteHost }: { siteHost: string }) => {
     </div>
   );
 };
+
+const FormComponent = ({ siteHost }: { siteHost: string }) => (
+  <QueryProvider>
+    <FormQueryComponent siteHost={siteHost} />
+  </QueryProvider>
+);
 
 export default FormComponent;

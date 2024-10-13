@@ -8,8 +8,6 @@ const siteHost = Astro.site ? new URL(Astro.site).host : '';
 <Layout meta={{ title: 'shortener' }}>
   <main>
     <span>knst shortener</span>
-    <QueryProvider client:load>
-        <FormComponent client:load siteHost={siteHost} />
-    </QueryProvider>
+    <FormComponent client:load siteHost={siteHost} />
   </main>
 </Layout>

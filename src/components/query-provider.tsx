@@ -1,13 +1,11 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/solid-query';
-import type { ParentComponent } from 'solid-js';
+import type { ParentComponent, ParentProps } from 'solid-js';
 
-const QueryProvider: ParentComponent = (props) => {
-  const client = new QueryClient();
+const client = new QueryClient();
 
+const QueryProvider: ParentComponent = (props: ParentProps) => {
   return (
-    <QueryClientProvider client={client}>
-      {props.children}
-    </QueryClientProvider>
+    <QueryClientProvider client={client}>{props.children}</QueryClientProvider>
   );
 };
 
