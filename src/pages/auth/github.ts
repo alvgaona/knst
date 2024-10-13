@@ -1,14 +1,14 @@
 import type { APIRoute } from 'astro';
 import * as jose from 'jose';
 
-const clientId = import.meta.env.GITHUB_CLIENT_ID;
-const clientSecret = import.meta.env.GITHUB_CLIENT_SECRET;
-const redirectUri = import.meta.env.GITHUB_REDIRECT_URI;
-const stateSecret = import.meta.env.SIGN_STATE_SECRET;
-const allowedUser = import.meta.env.ALLOWED_USER;
+const CLIENT_ID = import.meta.env.GITHUB_CLIENT_ID;
+const CLIENT_SECRET = import.meta.env.GITHUB_CLIENT_SECRET;
+const REDIRECT_URI = import.meta.env.GITHUB_REDIRECT_URI;
+const STATE_SECRET = import.meta.env.SIGN_STATE_SECRET;
+const ALLOWED_USER = import.meta.env.ALLOWED_USER;
 
 async function verifySignedState(signedState: string) {
-  const secret = new TextEncoder().encode(stateSecret);
+  const secret = new TextEncoder().encode(STATE_SECRET);
 
   try {
     const { payload } = await jose.jwtVerify(signedState, secret);
@@ -41,16 +41,15 @@ export const GET: APIRoute = async ({ url, redirect }) => {
       'Content-Type': 'application/json'
     },
     body: JSON.stringify({
-      client_id: clientId,
-      client_secret: clientSecret,
-      code: code,
-      redirect_uri: redirectUri,
+      client_id: CLIENT_ID,
+      client_secret: CLIENT_SECRET,
+      code,
+      redirect_uri: REDIRECT_URI,
     })
   });
 
   const tokenData = await tokenResponse.json();
 
-  // Check if user is alvgaona
   const userResponse = await fetch('https://api.github.com/user', {
     headers: {
       'Authorization': `token ${tokenData.access_token}`,
@@ -60,7 +59,7 @@ export const GET: APIRoute = async ({ url, redirect }) => {
 
   const userData = await userResponse.json();
 
-  if (userData.login !== allowedUser) {
+  if (userData.login !== ALLOWED_USER) {
     return new Response('Access denied.', { status: 403 });
   }
 
